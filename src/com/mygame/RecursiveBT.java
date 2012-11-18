@@ -94,14 +94,14 @@ public class RecursiveBT extends WallCarver{
     	if( (_grid[x][y] & (byte)1) == 0 ){
     		wall = 1;
     	}
-    	else{
-    		if (((_grid[x][y] | _grid[x + 1][y]) & 4) == 0){
-    			wall = 3;
-    		}
-    	}
     	
     	if( (_grid[x][y] & (byte)4) == 0 ){
+    		if(wall == 1){
+    			wall = 3;
+    		}
+    		else{
     			wall = 2;
+    		}
     	}
     	
     	return wall;
