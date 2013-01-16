@@ -8,6 +8,7 @@
     <uses-sdk android:targetSdkVersion="8" android:minSdkVersion="8" />
 
     <application
+    	android:label="MyMazeGame"
         android:icon="@drawable/ic_launcher">       
         <activity
             android:name=".MainActivity"

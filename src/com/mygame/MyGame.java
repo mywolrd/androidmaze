@@ -17,7 +17,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
-public class MyGame implements Renderer {
+public class MyGame implements Renderer{
 
 	private final String _texturevertexShader =
 			"uniform mat4 uMVPMatrix;" +
@@ -73,6 +73,7 @@ public class MyGame implements Renderer {
 	private FloatBuffer squareBuffer;   // place holder for texture
 	
 	private RecursiveBT _maze;
+	private Player _player;
 	
 	private float x_right;
 	private float y_bottom;
@@ -89,6 +90,12 @@ public class MyGame implements Renderer {
 	
 	private Context _context;
 
+	public volatile int input; // 0 = remain still
+								// 1 = left
+								// 2 = right
+								// 3 = up
+								// 4 = down
+		
 	private float texture[] = {
 			// Mapping coordinates for the vertices			
 			0.0f, 0.0f,     // bottom left  (V1)
@@ -98,7 +105,9 @@ public class MyGame implements Renderer {
 		};
 	
 	public MyGame(Context context){
+		
 		_context = context;
+		input = 0;
 	}
 	
 	private void setUpBuffers(){	
@@ -144,7 +153,8 @@ public class MyGame implements Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
 		_maze = new RecursiveBT(num);	
-
+		_player = new Player(x_left, y_top);
+		
 		setUpBuffers();
 		setUpOpenGLProgramHandle();
 		loadGLTexture();
@@ -158,7 +168,11 @@ public class MyGame implements Renderer {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		
 		//Draw
-		draw();
+		drawMaze();
+		if(input != 0){
+			updatePlayer();
+		}
+		drawPlayer(_player.getXPos(), _player.getYPos());
 	}
 	
 	@Override
@@ -191,6 +205,9 @@ public class MyGame implements Renderer {
 				
 		x_inc = (x_right - x_left) / (float) num;
 		y_inc = (y_top - y_bottom) / (float) num;
+		
+		_player.setPosition(x_left+(x_inc/10f), y_top-(y_inc/10f));//x_inc, y_inc
+		_player.setSpeed((float)(x_inc/10.0), (float)(y_inc/10.0));
 	}
 
 	public static int loadShader(int type, String shaderCode){
@@ -231,7 +248,7 @@ public class MyGame implements Renderer {
 
         GLES20.glUniformMatrix4fv(matrixHandle, 1, false, MVPMatrix, 0);
 
-        GLES20.glLineWidth(4f);
+        GLES20.glLineWidth(2f);
         
         GLES20.glDrawArrays(GLES20.GL_LINES, 0, 2);
         
@@ -240,10 +257,10 @@ public class MyGame implements Renderer {
 	
 	private void drawPlayer(float x1, float y1){
 		float[] _vertices = 
-			{	x1+(x_inc/5f), y1-(y_inc/5f),
-				x1+(x_inc/5f), y1-y_inc+(y_inc/5f),
-				x1+x_inc-(x_inc/5f), y1-(y_inc/5f),
-				x1+x_inc-(x_inc/5f), y1-y_inc+(y_inc/5f)	};
+			{	x1, y1,
+				x1, y1-y_inc+(2f*y_inc/10f),
+				x1+x_inc-(2f*x_inc/10f), y1,
+				x1+x_inc-(2f*x_inc/10f), y1-y_inc+(2f*y_inc/10f)	};
 		// put vertices into vertexBuffer
 		squareBuffer.put(_vertices);
 
@@ -251,8 +268,6 @@ public class MyGame implements Renderer {
 		squareBuffer.position(0);
 		textureBuffer.position(0);
 
-		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-		
         GLES20.glUseProgram(textureprogramHandle);
 
         positionHandle = GLES20.glGetAttribLocation(textureprogramHandle, "aPosition");
@@ -280,20 +295,14 @@ public class MyGame implements Renderer {
 
         GLES20.glUniformMatrix4fv(matrixHandle, 1, false, MVPMatrix, 0);
         
-      //  GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-      //  GLES20.glEnable(GLES20.GL_BLEND);
-        
 		GLES20.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 4);
-		
-		//GLES20.glDisable(GLES20.GL_BLEND);
+
 		GLES20.glDisableVertexAttribArray(positionHandle);
 		GLES20.glDisableVertexAttribArray(texturePositionHandle);
 	}
 	
 	/** The draw method for the square with the GL context */
-	private void draw() {
-		
-		drawPlayer(x_left, y_top);
+	private void drawMaze() {
 		
 		drawLine(x_left, y_top, x_right, y_top);
 		drawLine(x_left, y_top, x_left, y_bottom);
@@ -329,6 +338,97 @@ public class MyGame implements Renderer {
 		}
 	}
 	
+	public void updatePlayer(){
+		//user input received
+		//determine what grid the player is in currently
+		float xpc = _player.getXPos();//current x position
+		float ypc = _player.getYPos();//current y position
+		
+		float xpn;//next x position
+		float ypn;//next y position
+		
+		//update the next positions according to the input
+		switch(input){
+			//moving left
+			case 1: xpn = xpc-_player.getXSpd();
+					ypn = ypc;
+					break;
+					
+			//moving right	
+			case 2: xpc = xpc + (x_inc - (2f * x_inc/10f));
+					xpn = xpc + _player.getXSpd();
+					ypn = ypc;
+					break;
+					
+			//moving up		
+			case 3: xpn = xpc;
+					ypn = ypc + _player.getYSpd();
+					break;
+					
+			//moving down
+			case 4: xpn = xpc;
+					ypc = ypc - (y_inc - (2f * y_inc/10f));
+					ypn = ypc - _player.getYSpd();
+					break;
+			default: xpn = xpc;
+					 ypn = ypc;
+					break;
+		}
+				
+		//only update the player's next position if the position is
+		//within the boundary, x_left, x_right, y_top, y_bottom
+		if(( x_right>=xpn && xpn >= x_left) && 
+				(ypn >= y_bottom && ypn <= y_top)){
+			
+			//check whether current position and next position lie in the same block
+			//or different block
+			int cp;
+			int np;
+			boolean wall = true;
+		
+			if(xpn == xpc){
+				//moving in vertical direction
+				float temp = y_top - ypn;
+				np = (int) Math.abs(temp/y_inc);
+				
+				temp = y_top - ypc;
+				cp = (int) Math.abs(temp/y_inc);
+				
+				if(cp == np){
+					wall = false;
+				}else{
+					//Log.e("Hello", "Vertical "+cp+" "+np+" "+(int) Math.abs((x_left-xpn)/x_inc));
+					wall = _maze.checkYWall((int) Math.abs((x_left-xpn)/x_inc), cp, np);					
+				}				
+			}else{
+				//moving in horizontal direction
+				float temp = x_left - xpn;
+				np = (int) Math.abs(temp/x_inc);
+			
+				temp = x_left - xpc;
+				cp = (int) Math.abs(temp/x_inc);
+				
+				if(cp == np){
+					wall = false;
+				}else{
+					//Log.e("Hello", "Horizontal "+cp+" "+np+" "+(int) Math.abs((y_top-ypn)/y_inc));
+					wall = _maze.checkXWall(cp, np, (int) Math.abs((y_top-ypn)/y_inc) );
+				}
+			}
+		
+			if(!wall){
+				//if there is no wall
+				//update the player's position
+				if(input == 2) {
+					xpn = xpn - (x_inc - (2f * x_inc/10f));
+				}else if(input == 4){
+					ypn = ypn + (y_inc - (2f * y_inc/10f));
+				}
+				_player.setPosition(xpn, ypn);
+			}			
+		}
+	}
+	
 	public void loadGLTexture() {
 		// loading texture
 		
@@ -348,15 +448,9 @@ public class MyGame implements Renderer {
 				GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
 		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, 
 				GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-		
-		//GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-         //       GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-        //GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-          //      GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
 		// Use Android GLUtils to specify a two-dimensional texture image from our bitmap
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-		Log.e(""+GLES20.glGetError(), "texImage2D");
 		// Clean up
 		bitmap.recycle();
 	}

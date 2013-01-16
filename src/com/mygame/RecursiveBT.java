@@ -82,6 +82,48 @@ public class RecursiveBT extends WallCarver{
     	return array;
     }
     
+    public boolean checkXWall(int x, int y, int z){
+    	//if the player can move in horizontal direction
+    	// (x, z) = current position, (y, z) = next position
+    	//return false 
+    	boolean status = true;
+    	
+    	if(x < y){
+    		//check for the east wall of (x, z) cell
+    		if( (_grid[x][z] & (byte)1) != 0 ){
+        		status = false;
+        	}
+    	}else{
+    		//check for the east wall of (y, z)
+    		if( (_grid[y][z] & (byte)1) != 0 ){
+        		status = false;
+        	}
+    	}
+
+    	return status;
+    }
+    
+    public boolean checkYWall(int x, int y, int z){
+    	//if the player can move in vertical direction
+    	// (x, y) = current position, (x, z) = next position
+    	//return false 
+    	boolean status = true;
+
+    	if(y < z){
+    		//check for the south wall of (y, x) cell
+    		if( (_grid[x][y] & (byte)4) != 0 ){
+    			status = false;
+    		}
+    	}else{
+    		//check for the south wall of (z, x) cell
+    		if( (_grid[x][z] & (byte)4) != 0 ){
+    			status = false;
+    		}
+    	}
+    	
+    	return status;
+    }
+    
     public int getWalls(int x, int y){
     	//for a cell at (x, y)
     	//returns 0 if the cell has no east and south wall
