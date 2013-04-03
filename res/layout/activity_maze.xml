@@ -3,7 +3,8 @@
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:orientation="horizontal"
 	    android:layout_width="match_parent"
-    	android:layout_height="match_parent">
+    	android:layout_height="match_parent"
+    	android:layout_margin="5dp">
     	
     	<view class="com.mygame.MyGLSurfaceView"
     		android:id = "@+id/myGLSurfaceView"
@@ -17,7 +18,8 @@
 			android:orientation="horizontal"
 	    	android:layout_width="0dp"
     		android:layout_height="match_parent"
-    		android:layout_weight= "0.15">
+    		android:layout_weight= "0.15"
+    		android:layout_margin="10dp">
 
     		<view class="com.mygame.JoystickView"
     			android:id = "@+id/joystickView"

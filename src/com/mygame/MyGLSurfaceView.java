@@ -17,6 +17,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 	private int x_coord;
 	private int y_coord;
 	private int input;
+	private JoystickMovedListener joystick;
 	
 	public MyGLSurfaceView(Context context){
 		
@@ -39,9 +40,24 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 	
 		x_coord = Integer.MIN_VALUE;
 		y_coord = Integer.MIN_VALUE;
-		input = 0;
+		
+		joystick = new JoystickMovedListener(){
+				public void OnMoved(int pan, int tilt) {
+					//Log.e("Moved", pan + "   " + tilt);
+					requestRender(); 
+				}
+		    	
+		    	public void OnReleased() {
+		    		//Log.e("Released", "I'M IN THE JOYSTICK LISTENER");
+		    		requestRender();
+		    	}
+			};
 	}
-
+	
+	public JoystickMovedListener getJoystickListener(){
+		return joystick;
+	}
+	
 	public boolean onTouchEvent(MotionEvent e) {
 
 		//http://stackoverflow.com/questions/7545591/motionevent-issues/7577139#7577139

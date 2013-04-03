@@ -33,16 +33,7 @@ public class MazeActivity extends Activity{
 
 		joystick = (JoystickView) findViewById(R.id.joystickView);
 		
-		JoystickMovedListener myListener = new JoystickMovedListener(){
-			public void OnMoved(int pan, int tilt) {
-				Log.d("HERE", "I'M IN THE JOYSTICK LISTENER");
-	    	}
-	    	
-	    	public void OnReleased() {
-	    		Log.d("HERE", "I'M IN THE JOYSTICK LISTENER");
-	    	}
-		};
-		joystick.setOnJostickMovedListener(myListener);
+		joystick.setOnJostickMovedListener(glSurfaceView.getJoystickListener());
 	}
 
 	/** Remember to resume the glSurface  */
