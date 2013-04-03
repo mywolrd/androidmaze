@@ -1,13 +1,12 @@
 package com.mygame;
 
-import java.util.Arrays;
-
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -22,13 +21,22 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 	public MyGLSurfaceView(Context context){
 		
 		super(context);
+		init(context);
+	}
+	
+	public MyGLSurfaceView(Context context, AttributeSet atts){
 		
+		super(context, atts);
+		init(context);
+	}
+	
+	private void init(Context context){
 		setEGLContextClientVersion(2);
 		
 		myGame = new MyGame(context);
 		setRenderer(myGame);
 		//setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-		
+	
 		x_coord = Integer.MIN_VALUE;
 		y_coord = Integer.MIN_VALUE;
 		input = 0;
@@ -38,7 +46,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 
 		//http://stackoverflow.com/questions/7545591/motionevent-issues/7577139#7577139
 		//stackoverflow "Knickedi"
-		
+		Log.d("HERE", "I'M IN THE GLSURFACEVIEWTOUCHEVENT");
 		if (e.getAction() == MotionEvent.ACTION_CANCEL) {
 
 			// every touch is going to be canceled, clear everything

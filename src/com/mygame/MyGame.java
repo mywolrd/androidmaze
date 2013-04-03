@@ -75,6 +75,9 @@ public class MyGame implements Renderer{
 	private RecursiveBT _maze;
 	private Player _player;
 	
+	private float cam_x;
+	private float cam_y;
+	
 	private float x_right;
 	private float y_bottom;
 	
@@ -84,7 +87,7 @@ public class MyGame implements Renderer{
 	private float x_inc;
 	private float y_inc;
 
-	private byte num = 15;
+	private int num = 35;
 	
 	private int[] images = new int[1];
 	
@@ -108,6 +111,8 @@ public class MyGame implements Renderer{
 		
 		_context = context;
 		input = 0;
+		cam_x = 0.0f;
+		cam_y = 0.0f;
 	}
 	
 	private void setUpBuffers(){	
@@ -171,6 +176,8 @@ public class MyGame implements Renderer{
 		drawMaze();
 		if(input != 0){
 			updatePlayer();
+			cam_x = _player.getXPos();
+			cam_y = _player.getYPos();
 		}
 		drawPlayer(_player.getXPos(), _player.getYPos());
 	}
@@ -178,36 +185,42 @@ public class MyGame implements Renderer{
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 
-		GLES20.glViewport(0, 0, width, height);
-		
-		float ratio = (float) width / height;
+		//GLES20.glViewport(0, 0, width, height);
+				
+		float ratio = (float) (width - width/10.0) / height;
 		
 		viewport[0] = 0;
 		viewport[1] = 0;
-		viewport[2] = width;
+	
+		viewport[2] = (width - width/10);
 		viewport[3] = height;
 		
 		//set up the projection matrix 
 		Matrix.frustumM(PMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
 		
 		//set up the model view matrix
-		Matrix.setLookAtM(MVMatrix, 0, 0, 0, 3, 0f, 0f, 0f, 
-				0f, 1.0f, 0f);
+		Matrix.setLookAtM(MVMatrix, 0, cam_x, cam_y, 3, cam_x, cam_y, 0f, 
+								0f, 1.0f, 0f);			
 		
 		//find the max x, y coordinate in the object space
 		GLU.gluUnProject(0f, 0f, 0f, MVMatrix, 0, PMatrix, 0, viewport, 0, points, 0);
 		x_left = points[0] * 3f;
 		y_bottom = points[1] * 3f;
 		
-		GLU.gluUnProject((float)width, height, 0f, MVMatrix, 0, PMatrix, 0, viewport, 0, points, 0);
+		GLU.gluUnProject((float)(width - width/10.0), height, 0f, MVMatrix, 0, PMatrix, 0, viewport, 0, points, 0);
 		x_right = points[0] * 3f;
 		y_top = points[1] * 3f;
 				
 		x_inc = (x_right - x_left) / (float) num;
 		y_inc = (y_top - y_bottom) / (float) num;
 		
+		cam_x = x_left;
+		cam_y = y_top;
+		
 		_player.setPosition(x_left+(x_inc/10f), y_top-(y_inc/10f));//x_inc, y_inc
 		_player.setSpeed((float)(x_inc/10.0), (float)(y_inc/10.0));
+				
+		//GLU.gluLookAt(gl, _player.getXPos(), _player.getYPos(), 3, 0f, 0f, 0f, 0f, 1.0f, 0f);	
 	}
 
 	public static int loadShader(int type, String shaderCode){

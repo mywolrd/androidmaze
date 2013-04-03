@@ -2,28 +2,29 @@ package com.mygame;
 
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Stack;
 
 public class RecursiveBT extends WallCarver{
 
-    private byte OPP[];
-    private byte DX[];
-    private byte DY[];
+    private int OPP[];
+    private int DX[];
+    private int DY[];
+    private HashMap<Character, Integer> _dirMap;
+	private int nx, ny, cx, cy;
     
-    private HashMap<Character, Byte> _dirMap;
-	
-    public RecursiveBT(byte size){
+    public RecursiveBT(int size){
     	super(size);
     	
-        _dirMap = new HashMap<Character, Byte>();
+        _dirMap = new HashMap<Character, Integer>();
         
-        _dirMap.put('N', (byte)8);
-        _dirMap.put('S', (byte)4);
-        _dirMap.put('W', (byte)2);
-        _dirMap.put('E', (byte)1);
+        _dirMap.put('N', 8);
+        _dirMap.put('S', 4);
+        _dirMap.put('W', 2);
+        _dirMap.put('E', 1);
         
-        DX = new byte[9];
-        DY = new byte[9];
-        OPP = new byte[9];
+        DX = new int[9];
+        DY = new int[9];
+        OPP = new int[9];
         
         DX[8] = 0;
         DX[4] = 0;
@@ -40,34 +41,12 @@ public class RecursiveBT extends WallCarver{
         OPP[2] = 1;
         OPP[1] = 2;
     
-        Carver((byte)0, (byte)0);
+        cx = 0; cy = 0; nx = 0; ny = 0;
+        Carver();
     }//constructor
 
-    public void Carver(byte cx, byte cy){
-
-    	byte nx, ny;
-    	
-    	char[] direction; 
-    	
-    	direction = shuffle();
-    	
-    	for(int i=0; i<4; i++){
-    		
-    		nx = (byte)(cx + DX[_dirMap.get(direction[i])]);
-    		ny = (byte)(cy + DY[_dirMap.get(direction[i])]);
-    	
-    		if((nx >= (byte)0) && (nx <_size) 
-    			&& (ny >= (byte)0) && (ny < _size) 
-    			&& (_grid[nx][ny] == 0)){
-
-    			_grid[cx][cy] |= _dirMap.get(direction[i]);
-    			_grid[nx][ny] |= OPP[_dirMap.get(direction[i])];
-    			Carver(nx, ny);
-    		}
-    	}
-    }
-
-    private char[] shuffle(){
+    private boolean foundValidNeighbor(){
+    	boolean status = false;
     	
     	char[] array = {'N','S','E','W'};
     	Random rnd = new Random();
@@ -79,7 +58,55 @@ public class RecursiveBT extends WallCarver{
     		array[i] = array[pos];
     		array[pos] = temp;
     	}
-    	return array;
+    	
+    	for(int i=0; i < array.length; i++){
+    		char dir = array[i];
+    		
+    		int tempx = cx + DX[_dirMap.get(dir)];
+    		int tempy = cy + DY[_dirMap.get(dir)];
+    		
+    		if ((0 <= tempx) && (tempx < _size) && 
+    				(0 <= tempy) && (tempy < _size) &&
+    				(_grid[tempx][tempy] == 0)){
+    			
+    			nx = tempx;
+    			ny = tempy;
+    			
+    			_grid[cx][cy] |= _dirMap.get(dir);
+    			_grid[nx][ny] |= OPP[_dirMap.get(dir)];
+    			
+    			status = true;
+    			break;
+    		}
+    	}
+    	
+    	return status;
+    }
+    
+    public void Carver(){
+    	Stack<Integer> stack = new Stack<Integer>();
+    	
+    	int visitedCells = 1;
+    	int totalCells = _size*_size;
+    	boolean status = false;
+    	
+    	while(visitedCells < totalCells){
+    		status = foundValidNeighbor();
+    		
+    		if (status){
+    			
+    			stack.push(cx);
+    			stack.push(cy);
+    			cx = nx;
+    			cy = ny;
+    			visitedCells++;
+    		}else{
+    			if(!stack.empty()){
+    				cy = stack.pop();
+    				cx = stack.pop();
+    			}
+    		}
+    	}
     }
     
     public boolean checkXWall(int x, int y, int z){

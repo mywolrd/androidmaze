@@ -1,7 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+<?xml version="1.0" encoding ="utf-8"?>
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal"
+	    android:layout_width="match_parent"
+    	android:layout_height="match_parent">
+    	
+    	<view class="com.mygame.MyGLSurfaceView"
+    		android:id = "@+id/myGLSurfaceView"
+    		android:layout_width = "0dp"
+    		android:layout_height = "match_parent"
+    		android:layout_weight = "0.85"/>
+    	
+    	<RelativeLayout
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			android:id = "@+id/innerRelativeLayout"
+			android:orientation="horizontal"
+	    	android:layout_width="0dp"
+    		android:layout_height="match_parent"
+    		android:layout_weight= "0.15">
 
+    		<view class="com.mygame.JoystickView"
+    			android:id = "@+id/joystickView"
+    			android:layout_width = "match_parent"
+    			android:layout_height = "wrap_content"
+    			android:layout_alignParentBottom = "true"/>
+    	</RelativeLayout>	
 </LinearLayout>
