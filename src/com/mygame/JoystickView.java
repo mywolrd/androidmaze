@@ -65,7 +65,7 @@ public class JoystickView extends View {
                 handlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
                 innerPadding = 10;
-                sensitivity = 10;
+                sensitivity = 80;
         }
 
         // =========================================
@@ -142,13 +142,14 @@ public class JoystickView extends View {
 
                         // Coordinates
                         Log.d(TAG, "X:" + touchX + "|Y:" + touchY);
-
-                        // Pressure
+                        
+                        	// Pressure
                         if (listener != null) {
-                                listener.OnMoved((int) (touchX / radius * sensitivity), (int) (touchY  / radius * sensitivity));
+                        	listener.OnMoved((int) (touchX / radius * sensitivity), (int) (touchY  / radius * sensitivity));
                         }
 
                         invalidate();
+                      
                 } else if (actionType == MotionEvent.ACTION_UP) {
                         returnHandleToCenter();
                         Log.d(TAG, "X:" + touchX + "|Y:" + touchY);

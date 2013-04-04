@@ -17,6 +17,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 	private int x_coord;
 	private int y_coord;
 	private int input;
+	
 	private JoystickMovedListener joystick;
 	
 	public MyGLSurfaceView(Context context){
@@ -40,16 +41,44 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 	
 		x_coord = Integer.MIN_VALUE;
 		y_coord = Integer.MIN_VALUE;
+		input = 0;
 		
 		joystick = new JoystickMovedListener(){
 				public void OnMoved(int pan, int tilt) {
+					//             negative tilt  
+					//                  |        
+					// negative pan  ---|---   positive pan    
+					//                  |            
+					//             positive tilt 
+					//
+
 					//Log.e("Moved", pan + "   " + tilt);
-					requestRender(); 
+					int x = Math.abs(pan);
+					int y = Math.abs(tilt);
+										
+					if( x > y ){
+						// move in horizontal direction
+						if(pan < 0){
+							myGame.input = 1;
+						}else if(pan > 0){
+							myGame.input = 2;
+						}
+						
+					}else if(y > x){
+						//move in vertical direction
+						if(tilt < 0){
+							myGame.input = 3;
+						}else if(tilt > 0){
+							myGame.input = 4;
+						}
+					}
+					//requestRender(); 
 				}
 		    	
 		    	public void OnReleased() {
 		    		//Log.e("Released", "I'M IN THE JOYSTICK LISTENER");
-		    		requestRender();
+		    		myGame.input = 0;
+		    		//requestRender();
 		    	}
 			};
 	}
@@ -59,7 +88,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 	}
 	
 	public boolean onTouchEvent(MotionEvent e) {
-
+		/*
 		//http://stackoverflow.com/questions/7545591/motionevent-issues/7577139#7577139
 		//stackoverflow "Knickedi"
 		Log.d("HERE", "I'M IN THE GLSURFACEVIEWTOUCHEVENT");
@@ -117,7 +146,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
         myGame.input = input;
         
         //requestRender();
-        
+        */
 	    return true;
 	}
 

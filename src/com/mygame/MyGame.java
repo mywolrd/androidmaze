@@ -3,6 +3,7 @@ package com.mygame;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -87,7 +88,7 @@ public class MyGame implements Renderer{
 	private float x_inc;
 	private float y_inc;
 
-	private int num = 35;
+	private int num = 20;
 	
 	private int[] images = new int[1];
 	
@@ -98,7 +99,10 @@ public class MyGame implements Renderer{
 								// 2 = right
 								// 3 = up
 								// 4 = down
-		
+	public volatile int inputIntensity; // -1 = deccelerate
+										 // 0 = do nothing
+										 // 1 = accelerate
+	
 	private float texture[] = {
 			// Mapping coordinates for the vertices			
 			0.0f, 0.0f,     // bottom left  (V1)
@@ -153,7 +157,7 @@ public class MyGame implements Renderer{
 		GLES20.glAttachShader(textureprogramHandle, fragmentShader);
 		GLES20.glLinkProgram(textureprogramHandle);		
 	}
-
+	
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
@@ -172,13 +176,15 @@ public class MyGame implements Renderer{
 	
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		
-		//Draw
-		drawMaze();
 		if(input != 0){
+			//Log.e("input", input+"");
 			updatePlayer();
-			cam_x = _player.getXPos();
-			cam_y = _player.getYPos();
+			//cam_x = _player.getXPos();
+			//cam_y = _player.getYPos();
 		}
+		
+		//Draw
+		drawMaze();		
 		drawPlayer(_player.getXPos(), _player.getYPos());
 	}
 	
@@ -359,6 +365,12 @@ public class MyGame implements Renderer{
 		
 		float xpn;//next x position
 		float ypn;//next y position
+		
+		if(inputIntensity == 1){
+			_player.increaseSpeed();
+		}else if(inputIntensity == -1){
+			_player.decreaseSpeed();
+		}
 		
 		//update the next positions according to the input
 		switch(input){

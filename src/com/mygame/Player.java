@@ -7,34 +7,57 @@ public class Player {
 	private float xs, ys;	// speed - x and y have different speed because of 
 							//	difference in height and width of a screen
 	
-	private int mult;
-	private int direction;
+	private int speedIndex;
 	
-	private final int speed1 = 1;
-	private final int speed2 = 2;
-	private final int speed3 = 3;
-	private final int speed4 = 4;
+	private int direction;	
+	private int speed[];
 	
 	 public Player(){
-		this.mult = speed2;
+		
 		this.direction = 0;
+		
+		setSpeedArray();
 	 }
 	
     public Player(float x, float y){
 
-		this.mult = speed2;
+    	this.direction = 0;
+
 		this.xp = x;
 		this.yp = y;
-		this.direction = 0;
+		
+		setSpeedArray();
 	}
 	
 	public Player(float x, float y, int type){
-		
+
+		this.direction = 0;
+
 		this.type = type;
-		this.mult = speed1;
 		this.xp = x;
 		this.yp = y;
-		this.direction = 0;
+		
+		setSpeedArray();
+	}
+	
+	private void setSpeedArray(){
+		speed = new int[6];
+		
+		this.speedIndex = 0;
+		
+		for (int i = 1; i<= 6; i++){
+			speed[i-1] = 2 * i;
+		}
+	}
+	
+	public void increaseSpeed(){
+		if(speedIndex < 5)
+			speedIndex++;
+	}
+	
+	public void decreaseSpeed(){
+		if(speedIndex > 0)
+			speedIndex--;
 	}
 	
 	public void setPosition(float x, float y){
@@ -70,10 +93,10 @@ public class Player {
 	}
 	
 	public float getXSpd(){
-		return xs*mult;
+		return xs*speed[speedIndex];
 	}
 	
 	public float getYSpd(){
-		return ys*mult;		
+		return ys*speed[speedIndex];		
 	}
 }
