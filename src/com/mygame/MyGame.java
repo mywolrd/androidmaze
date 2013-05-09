@@ -362,16 +362,14 @@ public class MyGame implements Renderer{
 		//determine what grid the player is in currently
 		float xpc = _player.getXPos();//current x position
 		float ypc = _player.getYPos();//current y position
+		//top left if moving left
+		//top right if moving right
+		//bottom left if moving down
+		//top left if moving up
 		
 		float xpn;//next x position
 		float ypn;//next y position
-		
-		if(inputIntensity == 1){
-			_player.increaseSpeed();
-		}else if(inputIntensity == -1){
-			_player.decreaseSpeed();
-		}
-		
+				
 		//update the next positions according to the input
 		switch(input){
 			//moving left
@@ -395,6 +393,7 @@ public class MyGame implements Renderer{
 					ypc = ypc - (y_inc - (2f * y_inc/10f));
 					ypn = ypc - _player.getYSpd();
 					break;
+					
 			default: xpn = xpc;
 					 ypn = ypc;
 					break;
@@ -405,12 +404,13 @@ public class MyGame implements Renderer{
 		if(( x_right>=xpn && xpn >= x_left) && 
 				(ypn >= y_bottom && ypn <= y_top)){
 			
-			//check whether current position and next position lie in the same block
+			//check whether current position and next position are in the same block
 			//or different block
 			int cp;
 			int np;
-			boolean wall = true;
-		
+
+			boolean canIgo = false;
+
 			if(xpn == xpc){
 				//moving in vertical direction
 				float temp = y_top - ypn;
@@ -420,28 +420,30 @@ public class MyGame implements Renderer{
 				cp = (int) Math.abs(temp/y_inc);
 				
 				if(cp == np){
-					wall = false;
+					canIgo = true;
 				}else{
-					//Log.e("Hello", "Vertical "+cp+" "+np+" "+(int) Math.abs((x_left-xpn)/x_inc));
-					wall = _maze.checkYWall((int) Math.abs((x_left-xpn)/x_inc), cp, np);					
+					canIgo = _maze.canImoveVertical((int) Math.abs((x_left-xpn)/x_inc),
+								(int) Math.abs((x_left-(xpn + (x_inc - (2f * x_inc/10f))))/x_inc),
+								cp, np);					
 				}				
 			}else{
 				//moving in horizontal direction
 				float temp = x_left - xpn;
 				np = (int) Math.abs(temp/x_inc);
-			
+
 				temp = x_left - xpc;
 				cp = (int) Math.abs(temp/x_inc);
 				
 				if(cp == np){
-					wall = false;
+					canIgo = true;
 				}else{
-					//Log.e("Hello", "Horizontal "+cp+" "+np+" "+(int) Math.abs((y_top-ypn)/y_inc));
-					wall = _maze.checkXWall(cp, np, (int) Math.abs((y_top-ypn)/y_inc) );
+					canIgo = _maze.canImoveHorizontal(cp, np,
+							(int) Math.abs((y_top-ypn)/y_inc),
+							(int) Math.abs((y_top-(ypn- (y_inc - (2f * y_inc/10f))))/y_inc));
 				}
 			}
 		
-			if(!wall){
+			if(canIgo){
 				//if there is no wall
 				//update the player's position
 				if(input == 2) {

@@ -127,34 +127,35 @@ public class JoystickView extends View {
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-        		Log.d("HERE", "I'M IN THE JOYSTICK TOUCHEVENT");
-                int actionType = event.getAction();
-                if (actionType == MotionEvent.ACTION_MOVE) {
-                        int px = getMeasuredWidth() / 2;
-                        int py = getMeasuredHeight() / 2;
-                        int radius = Math.min(px, py) - handleInnerBoundaries;
+        	
+        	//Log.d("HERE", "I'M IN THE JOYSTICK TOUCHEVENT");
+        	int actionType = event.getAction();
+        	if (actionType == MotionEvent.ACTION_MOVE) {
+        		int px = getMeasuredWidth() / 2;
+        		int py = getMeasuredHeight() / 2;
+        		int radius = Math.min(px, py) - handleInnerBoundaries;
 
-                        touchX = (event.getX() - px);
-                        touchX = Math.max(Math.min(touchX, radius), -radius);
+        		touchX = (event.getX() - px);
+        		touchX = Math.max(Math.min(touchX, radius), -radius);
+        		
+        		touchY = (event.getY() - py);
+        		touchY = Math.max(Math.min(touchY, radius), -radius);
+        		
+        		// Coordinates
+        		//Log.d(TAG, "X:" + touchX + "|Y:" + touchY);
+        		
+        		// Pressure
+        		if (listener != null) {
+        			listener.OnMoved((int) (touchX / radius * sensitivity), (int) (touchY  / radius * sensitivity));
+        		}
 
-                        touchY = (event.getY() - py);
-                        touchY = Math.max(Math.min(touchY, radius), -radius);
-
-                        // Coordinates
-                        Log.d(TAG, "X:" + touchX + "|Y:" + touchY);
-                        
-                        	// Pressure
-                        if (listener != null) {
-                        	listener.OnMoved((int) (touchX / radius * sensitivity), (int) (touchY  / radius * sensitivity));
-                        }
-
-                        invalidate();
-                      
-                } else if (actionType == MotionEvent.ACTION_UP) {
-                        returnHandleToCenter();
-                        Log.d(TAG, "X:" + touchX + "|Y:" + touchY);
-                }
-                return true;
+        		invalidate();
+        		
+        	} else if (actionType == MotionEvent.ACTION_UP) {
+        		returnHandleToCenter();
+        		//Log.d(TAG, "X:" + touchX + "|Y:" + touchY);
+            }
+        	return true;
         }
 
         private void returnHandleToCenter() {

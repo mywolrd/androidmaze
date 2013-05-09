@@ -55,7 +55,9 @@ public class MyGLSurfaceView extends GLSurfaceView implements SensorEventListene
 					//Log.e("Moved", pan + "   " + tilt);
 					int x = Math.abs(pan);
 					int y = Math.abs(tilt);
-										
+					// smarter navigation needed.
+					// say if the joystick is between positive pan, and negative tilt
+					// the game should check which way the character can move, and move it.
 					if( x > y ){
 						// move in horizontal direction
 						if(pan < 0){

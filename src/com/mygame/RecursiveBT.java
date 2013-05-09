@@ -109,45 +109,55 @@ public class RecursiveBT extends WallCarver{
     	}
     }
     
-    public boolean checkXWall(int x, int y, int z){
+    public boolean canImoveHorizontal(int x, int y, int z1, int z2){
     	//if the player can move in horizontal direction
-    	// (x, z) = current position, (y, z) = next position
+    	// (x, z1) = current position, (y, z1) = next position
     	//return false 
-    	boolean status = true;
+    	boolean status = false;
     	
     	if(x < y){
+    		//moving to the right
     		//check for the east wall of (x, z) cell
-    		if( (_grid[x][z] & (byte)1) != 0 ){
-        		status = false;
+    		if( (_grid[x][z1] & (byte)1) != 0 ){
+        		status = true;        		
         	}
     	}else{
+    		//moving to the left
     		//check for the east wall of (y, z)
-    		if( (_grid[y][z] & (byte)1) != 0 ){
-        		status = false;
-        	}
+    		if( (_grid[y][z1] & (byte)1) != 0 ){
+        		status = true;    		
+    		}
     	}
+    	
+    	if(z1 != z2)
+    		status = false;
 
     	return status;
     }
     
-    public boolean checkYWall(int x, int y, int z){
+    public boolean canImoveVertical(int x1, int x2, int y, int z){
     	//if the player can move in vertical direction
-    	// (x, y) = current position, (x, z) = next position
+    	// (x1, y) = current position, (x1, z) = next position
     	//return false 
-    	boolean status = true;
+    	boolean status = false;
 
     	if(y < z){
-    		//check for the south wall of (y, x) cell
-    		if( (_grid[x][y] & (byte)4) != 0 ){
-    			status = false;
+    		//moving down
+    		//check for the south wall of (x, y) cell
+    		if( (_grid[x1][y] & (byte)4) != 0 ){
+    			status = true;
     		}
     	}else{
-    		//check for the south wall of (z, x) cell
-    		if( (_grid[x][z] & (byte)4) != 0 ){
-    			status = false;
+    		//moving up
+    		//check for the south wall of (x, z) cell
+    		if( (_grid[x1][z] & (byte)4) != 0 ){
+    			status = true;
     		}
     	}
     	
+    	if(x1 != x2)
+    		status = false;
+    		
     	return status;
     }
     
