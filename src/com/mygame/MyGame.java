@@ -29,7 +29,7 @@ public class MyGame implements Renderer{
 					
 			"void main() {" +
 			"	vTexture = aTexture;" +
-			"	gl_Position = aPosition * uMVPMatrix;" +
+			"	gl_Position = uMVPMatrix * aPosition;" +
 			"}";
 	
 	private final String _texturefragmentShader =
@@ -45,7 +45,7 @@ public class MyGame implements Renderer{
 			"uniform mat4 uMVPMatrix;" +
 			"attribute vec4 aPosition;" +
 			"void main() {" +
-			"	gl_Position = aPosition * uMVPMatrix;" +
+			"	gl_Position = uMVPMatrix * aPosition;" +
 			"}";
 	
 	private final String _fragmentShader =
@@ -177,13 +177,13 @@ public class MyGame implements Renderer{
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		
 		if(input != 0){
-			//Log.e("input", input+"");
 			updatePlayer();
-			//cam_x = _player.getXPos();
-			//cam_y = _player.getYPos();
 		}
 		
 		//Draw
+		Matrix.setLookAtM(MVMatrix, 0, 0, 0, 3, _player.getXPos(), _player.getYPos(), 0f, 
+				0f, 1.0f, 0f);			
+
 		drawMaze();		
 		drawPlayer(_player.getXPos(), _player.getYPos());
 	}
@@ -205,7 +205,7 @@ public class MyGame implements Renderer{
 		Matrix.frustumM(PMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
 		
 		//set up the model view matrix
-		Matrix.setLookAtM(MVMatrix, 0, cam_x, cam_y, 3, cam_x, cam_y, 0f, 
+		Matrix.setLookAtM(MVMatrix, 0, 0, 0, 3, 0f, 0f, 0f, 
 								0f, 1.0f, 0f);			
 		
 		//find the max x, y coordinate in the object space
@@ -220,13 +220,15 @@ public class MyGame implements Renderer{
 		x_inc = (x_right - x_left) / (float) num;
 		y_inc = (y_top - y_bottom) / (float) num;
 		
+		Log.e("world space width", x_left + " to " + x_right);
+		Log.e("world space height", y_top + " to " + y_bottom);
+		
 		cam_x = x_left;
 		cam_y = y_top;
 		
 		_player.setPosition(x_left+(x_inc/10f), y_top-(y_inc/10f));//x_inc, y_inc
 		_player.setSpeed((float)(x_inc/10.0), (float)(y_inc/10.0));
 				
-		//GLU.gluLookAt(gl, _player.getXPos(), _player.getYPos(), 3, 0f, 0f, 0f, 0f, 1.0f, 0f);	
 	}
 
 	public static int loadShader(int type, String shaderCode){
